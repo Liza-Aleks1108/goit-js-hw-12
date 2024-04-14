@@ -12,7 +12,7 @@ export default function createMarkup(arr) {
         comments,
         downloads,
       }) => {
-        return `<li>
+        return `<li class="li-js">
     <a href="${largeImageURL}">
         <img src="${webformatURL}" alt="${tags}" width="360" height="155"/>
     </a>

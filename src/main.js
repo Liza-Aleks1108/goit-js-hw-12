@@ -32,10 +32,12 @@ const loadMoreButton = document.querySelector('.load-more-button');
 
 // page
 let page = 1;
+let perPage = 15;
 
 // handleSubmit
 function handleSubmit(event) {
   event.preventDefault();
+  page = 1;
   // console.log(page);
 
   if (searchInput.value.trim() === '') {
@@ -80,13 +82,41 @@ async function handleLoadMore() {
   page += 1;
   // console.log(page);
 
+  createLoader();
   loadMoreButton.disabled = true;
 
   try {
     const data = await fetchData(searchInput.value.trim(), page);
+    removeLoader();
+
     list.insertAdjacentHTML('beforeend', createMarkup(data.hits));
     lightbox.refresh();
     loadMoreButton.disabled = false;
+
+    // Отримання висоти
+    const cardHeight = list
+      .querySelector('.li-js')
+      .getBoundingClientRect().height;
+    // console.log(cardHeight);
+
+    // Плавна прокрутка сторінки
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+
+    // console.log('total hits', data.totalHits);
+    const totalPages = Math.ceil(data.totalHits / perPage);
+
+    // Перевірка кінця колекції
+    if (page >= totalPages) {
+      loadMoreButton.classList.add('load-more-hidden'); // Додаємо клас, який приховує кнопку "Load more"
+      iziToast.info({
+        title: '',
+        message: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
+      });
+    }
   } catch (error) {
     alert(error.message);
   }

@@ -54,10 +54,6 @@
   
 }
 
-.none{
-  display: none;
-}
-
 body{
   font: 500 16px / 1.5 "Montserrat", sans-serif;
   letter-spacing: 0.04em;
@@ -142,4 +138,12 @@ img{
   
   width: 360px;
   height: 155px;
+}
+
+.none {
+  display: none;
+}
+
+.load-more-hidden {
+  display: none;
 }
