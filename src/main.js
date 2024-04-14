@@ -62,7 +62,7 @@ function handleSubmit(event) {
         });
       } else {
         // Показати кнопку "Load more"
-        loadMoreButton.classList.remove('none');
+        loadMoreButton.classList.remove('load-more-hidden');
       }
     })
     .catch(error => alert(error))
