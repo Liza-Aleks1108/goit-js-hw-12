@@ -1,22 +1,23 @@
 //! У файлі pixabay-api.js зберігаються функції для HTTP-запитів.
 
-import { searchInput } from '../main';
+import axios from 'axios';
 
 // const для pixabay
+const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '43217823-e472439c26018cf28ab0cff6b';
-export default function fetchData(query) {
+
+export default async function fetchData(query, page) {
   const params = new URLSearchParams({
     key: API_KEY,
-    q: searchInput.value.trim(),
+    q: query,
+    // query = searchInput.value.trim()
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
+    per_page: 15,
+    page,
   });
 
-  return fetch(`https://pixabay.com/api/?${params}`).then(response => {
-    if (!response.ok) {
-      throw Error(response.status);
-    }
-    return response.json();
-  });
+  const response = await axios.get(`${BASE_URL}?${params}`);
+  return response.data;
 }

@@ -1,5 +1,8 @@
 //! У файлі main.js знаходиться вся логіка роботи додатка.
 
+// Бібліотека Axios
+import axios from 'axios';
+
 // import з pixabay-api
 import fetchData from '../src/js/pixabay-api';
 
@@ -20,15 +23,20 @@ const lightbox = new SimpleLightbox('.list a', {
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-// Пошук елементів форми та список
+// Пошук елементів форми та список, кнопки Load more
 const searchForm = document.querySelector('.search-form');
 const searchLoading = document.querySelector('.loader');
 export const searchInput = document.querySelector('.search-input');
 const list = document.querySelector('ul');
+const loadMoreButton = document.querySelector('.load-more-button');
+
+// page
+let page = 1;
 
 // handleSubmit
 function handleSubmit(event) {
   event.preventDefault();
+  // console.log(page);
 
   if (searchInput.value.trim() === '') {
     return;
@@ -38,8 +46,6 @@ function handleSubmit(event) {
 
   fetchData(searchInput.value.trim())
     .then(data => {
-      // console.log('data', data);
-
       list.innerHTML = ''; // Очищення попередніх результатів перед вставкою нових
       list.insertAdjacentHTML('beforeend', createMarkup(data.hits));
 
@@ -52,6 +58,9 @@ function handleSubmit(event) {
           color: 'red',
           position: 'topRight',
         });
+      } else {
+        // Показати кнопку "Load more"
+        loadMoreButton.classList.remove('none');
       }
     })
     .catch(error => alert(error))
@@ -62,6 +71,26 @@ function handleSubmit(event) {
 
 // Додаємо слухача події на форму
 searchForm.addEventListener('submit', handleSubmit);
+
+// Додаємо слухача події на кнопку Load more
+loadMoreButton.addEventListener('click', handleLoadMore);
+
+// handleLoadMore
+async function handleLoadMore() {
+  page += 1;
+  // console.log(page);
+
+  loadMoreButton.disabled = true;
+
+  try {
+    const data = await fetchData(searchInput.value.trim(), page);
+    list.insertAdjacentHTML('beforeend', createMarkup(data.hits));
+    lightbox.refresh();
+    loadMoreButton.disabled = false;
+  } catch (error) {
+    alert(error.message);
+  }
+}
 
 // Функція для створення елемента loader
 export function createLoader() {
