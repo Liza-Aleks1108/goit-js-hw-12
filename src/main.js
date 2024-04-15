@@ -35,7 +35,7 @@ let page = 1;
 let perPage = 15;
 
 // handleSubmit
-function handleSubmit(event) {
+async function handleSubmit(event) {
   event.preventDefault();
   page = 1;
   // console.log(page);
@@ -44,32 +44,35 @@ function handleSubmit(event) {
     return;
   }
 
+  list.innerHTML = '';
+  loadMoreButton.classList.add('load-more-hidden');
   createLoader();
 
-  fetchData(searchInput.value.trim())
-    .then(data => {
-      list.innerHTML = ''; // Очищення попередніх результатів перед вставкою нових
-      list.insertAdjacentHTML('beforeend', createMarkup(data.hits));
+  try {
+    const data = await fetchData(searchInput.value.trim(), page);
+    list.innerHTML = ''; // Очищення попередніх результатів перед вставкою нових
+    list.insertAdjacentHTML('beforeend', createMarkup(data.hits));
 
-      lightbox.refresh();
+    lightbox.refresh();
 
-      if (data.hits.length === 0) {
-        loadMoreButton.classList.add('load-more-hidden');
-        iziToast.show({
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-          color: 'red',
-          position: 'topRight',
-        });
-      } else {
-        // Показати кнопку "Load more"
-        loadMoreButton.classList.remove('load-more-hidden');
-      }
-    })
-    .catch(error => alert(error))
-    .finally(() => {
-      removeLoader();
-    });
+    if (data.hits.length === 0) {
+      loadMoreButton.classList.add('load-more-hidden');
+      iziToast.show({
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+        color: 'red',
+        position: 'topRight',
+      });
+    } else if (data.totalHits <= perPage) {
+      loadMoreButton.classList.add('load-more-hidden');
+    } else {
+      loadMoreButton.classList.remove('load-more-hidden');
+    }
+
+    removeLoader();
+  } catch (error) {
+    alert(error);
+  }
 }
 
 // Додаємо слухача події на форму
